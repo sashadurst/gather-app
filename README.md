@@ -1,16 +1,50 @@
-# React + Vite
+# Gather
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Event copy generator for social club organizers — fill out a form, get ready-to-post content for Luma, Partiful, and Instagram in seconds.
 
-Currently, two official plugins are available:
+## Why I built this
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+I grew SF Social Cookbook Club to nearly 2,000 members as a solo organizer. Every event meant writing the same information four different ways — a warm Luma description, a casual Partiful invite, an Instagram caption with hashtags, and a run-of-show for the day. It was 30–45 minutes of work before the actual planning even started.
 
-## React Compiler
+Gather cuts that to under a minute. You fill out one form, pick your tone, and get polished copy for every platform at once.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## What it does
 
-## Expanding the ESLint configuration
+- Accepts event details — club name, vibe, theme, date, location, group size, logistics
+- Lets the organizer choose a tone: Warm & cozy, Fun & hype, or Chill & low-key
+- Generates platform-specific copy simultaneously: Luma description, Partiful invite, Instagram caption, and event agenda
+- Each output appears in its own card with a one-click copy button
+- Calls the Anthropic Claude API directly from the browser with a structured prompt that enforces format and voice for each platform
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Tech stack
+
+- **React** + **Vite** — frontend framework and build tool
+- **Tailwind CSS** — utility-first styling
+- **Anthropic Claude API** (`claude-sonnet-4-6`) — LLM for content generation
+- **Vercel** — deployment and hosting
+
+## Live demo
+
+[gather-app-sepia.vercel.app](https://gather-app-sepia.vercel.app)
+
+## Run locally
+
+**Prerequisites:** Node.js 18+, an [Anthropic API key](https://console.anthropic.com)
+
+```bash
+git clone https://github.com/sashadurst/gather-app.git
+cd gather-app
+npm install
+```
+
+Create a `.env.local` file in the project root:
+
+```
+VITE_ANTHROPIC_API_KEY=your_api_key_here
+```
+
+```bash
+npm run dev
+```
+
+The app will be running at `http://localhost:5173`.
