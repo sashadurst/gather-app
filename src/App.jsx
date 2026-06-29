@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+// ── Constants (unchanged) ──────────────────────────────────────────────────
+
 const TONES = [
   { id: 'warm', label: 'Warm & cozy' },
   { id: 'hype', label: 'Fun & hype' },
@@ -7,18 +9,27 @@ const TONES = [
 ]
 
 const OUTPUT_OPTIONS = [
-  { id: 'luma', label: 'Luma description' },
-  { id: 'partiful', label: 'Partiful copy' },
-  { id: 'instagram', label: 'Instagram caption' },
+  { id: 'luma', label: 'Luma' },
+  { id: 'partiful', label: 'Partiful' },
+  { id: 'instagram', label: 'Instagram' },
   { id: 'agenda', label: 'Agenda' },
 ]
 
 const OUTPUT_LABELS = {
-  luma: 'Luma Description',
-  partiful: 'Partiful Copy',
+  luma: 'Luma Style',
+  partiful: 'Partiful Style',
   instagram: 'Instagram Caption',
-  agenda: 'Agenda',
+  agenda: 'Event Agenda',
 }
+
+const OUTPUT_COLORS = {
+  luma: '#7c6af7',
+  partiful: '#e46cff',
+  instagram: '#fb923c',
+  agenda: '#a78bfa',
+}
+
+// ── Prompt builder (unchanged) ─────────────────────────────────────────────
 
 function buildPrompt(form, outputs) {
   const descriptions = {
@@ -27,9 +38,7 @@ function buildPrompt(form, outputs) {
     instagram: `instagram: 2-3 sentences of conversational hook to open, then a line with the key logistics (date, location, how to join), then 4-6 relevant hashtags. Keep the whole thing fun and approachable.`,
     agenda: 'agenda: A clean timeline for the organizer. Each item on its own line in exactly this format: "7:00pm - Guests arrive". Use a regular hyphen-minus surrounded by spaces ( - ) NOT an em dash. Separate each item with a blank line so it is easy to scan.',
   }
-
   const requested = outputs.map(id => `- ${descriptions[id]}`).join('\n')
-
   return `You are an expert event copywriter for social clubs and community organizers.
 
 CLUB DETAILS:
@@ -51,22 +60,220 @@ JSON keys must be exactly: ${outputs.join(', ')}
 Each value is the complete ready-to-post text.`
 }
 
+// ── Design tokens ──────────────────────────────────────────────────────────
+
+const C = {
+  bg:         '#0e0c12',
+  surface:    '#1a1726',
+  surfaceDim: '#141219',
+  elevated:   '#231f32',
+  border:     '#2e2a40',
+  borderMid:  '#494552',
+  textPrimary:'#f0edf8',
+  textMuted:  '#8b87a0',
+  primary:    '#a78bfa',
+  secondary:  '#e46cff',
+  gradient:   'linear-gradient(135deg, #a78bfa 0%, #e46cff 100%)',
+}
+
+const FONT_JAKARTA = "'Plus Jakarta Sans', sans-serif"
+const FONT_INTER   = "Inter, sans-serif"
+const FONT_MONO    = "'JetBrains Mono', monospace"
+
+// ── CSS injected once ──────────────────────────────────────────────────────
+
+const GLOBAL_CSS = `
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  @keyframes shimmer {
+    0%   { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+  }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 0.6; }
+    50%       { opacity: 1; }
+  }
+
+  .shimmer-bar {
+    background: linear-gradient(90deg, #1a1726 25%, #2b2930 50%, #1a1726 75%);
+    background-size: 400px 100%;
+    animation: shimmer 1.4s infinite linear;
+    border-radius: 6px;
+  }
+  .card-fadeup {
+    animation: fadeInUp 0.4s ease both;
+  }
+
+  input, textarea {
+    font-family: ${FONT_INTER};
+    font-size: 15px;
+    color: ${C.textPrimary};
+    background: ${C.elevated};
+    border: 1.5px solid ${C.border};
+    border-radius: 10px;
+    padding: 12px 16px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    resize: none;
+  }
+  input::placeholder, textarea::placeholder {
+    color: ${C.textMuted};
+  }
+  input:focus, textarea:focus {
+    border-color: ${C.primary};
+    box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.18);
+  }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: ${C.bg}; }
+  ::-webkit-scrollbar-thumb { background: ${C.border}; border-radius: 3px; }
+`
+
+// ── Sub-components ─────────────────────────────────────────────────────────
+
+function Label({ children }) {
+  return (
+    <p style={{
+      fontFamily: FONT_INTER, fontSize: 11, fontWeight: 600,
+      letterSpacing: '0.07em', textTransform: 'uppercase',
+      color: C.textMuted, marginBottom: 8,
+    }}>
+      {children}
+    </p>
+  )
+}
+
+function SectionCard({ number, title, children }) {
+  return (
+    <div style={{
+      backgroundColor: C.surface,
+      border: `1px solid ${C.border}`,
+      borderRadius: 20,
+      padding: '28px 32px',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+        <div style={{
+          width: 28, height: 28, borderRadius: '50%',
+          background: C.gradient,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          flexShrink: 0,
+        }}>
+          <span style={{ fontFamily: FONT_JAKARTA, fontSize: 13, fontWeight: 700, color: '#fff' }}>{number}</span>
+        </div>
+        <h3 style={{ fontFamily: FONT_JAKARTA, fontSize: 18, fontWeight: 700, color: C.textPrimary }}>
+          {title}
+        </h3>
+      </div>
+      {children}
+    </div>
+  )
+}
+
+function ShimmerCard() {
+  return (
+    <div style={{
+      backgroundColor: C.surface,
+      border: `1px solid ${C.border}`,
+      borderRadius: 20,
+      padding: 24,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 12,
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+        <div className="shimmer-bar" style={{ width: 10, height: 10, borderRadius: '50%' }} />
+        <div className="shimmer-bar" style={{ width: 120, height: 14 }} />
+      </div>
+      <div className="shimmer-bar" style={{ height: 12, width: '100%' }} />
+      <div className="shimmer-bar" style={{ height: 12, width: '92%' }} />
+      <div className="shimmer-bar" style={{ height: 12, width: '78%' }} />
+      <div className="shimmer-bar" style={{ height: 12, width: '85%' }} />
+      <div className="shimmer-bar" style={{ height: 12, width: '60%' }} />
+    </div>
+  )
+}
+
+function OutputCard({ id, content, isCopied, onCopy }) {
+  const color = OUTPUT_COLORS[id]
+  return (
+    <div
+      className="card-fadeup"
+      style={{
+        backgroundColor: C.surface,
+        border: `1px solid ${C.border}`,
+        borderRadius: 20,
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        boxShadow: `0 0 40px ${color}18`,
+      }}
+    >
+      {/* Top accent line */}
+      <div style={{ height: 3, background: `linear-gradient(90deg, ${color}, transparent)` }} />
+
+      {/* Header */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '14px 20px',
+        borderBottom: `1px solid ${C.border}`,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: color, flexShrink: 0 }} />
+          <span style={{ fontFamily: FONT_JAKARTA, fontSize: 14, fontWeight: 700, color: C.textPrimary }}>
+            {OUTPUT_LABELS[id]}
+          </span>
+        </div>
+        <button
+          onClick={onCopy}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '5px 12px', borderRadius: 8,
+            fontFamily: FONT_INTER, fontSize: 12, fontWeight: 600,
+            border: `1px solid ${C.border}`,
+            backgroundColor: isCopied ? color : 'transparent',
+            color: isCopied ? '#fff' : C.textMuted,
+            cursor: 'pointer', transition: 'all 0.15s',
+          }}
+        >
+          {isCopied ? '✓ Copied' : 'Copy'}
+        </button>
+      </div>
+
+      {/* Content */}
+      <div style={{ padding: '20px', flex: 1 }}>
+        <p style={{
+          fontFamily: FONT_MONO, fontSize: 14, lineHeight: 1.75,
+          color: C.textPrimary, whiteSpace: 'pre-wrap',
+        }}>
+          {content}
+        </p>
+      </div>
+    </div>
+  )
+}
+
+// ── Main app ───────────────────────────────────────────────────────────────
+
 export default function App() {
   const [form, setForm] = useState({
-    clubName: '',
-    clubVibe: '',
-    eventTheme: '',
-    dateTime: '',
-    location: '',
-    groupSize: '',
-    logistics: '',
-    tone: 'Warm & cozy',
+    clubName: '', clubVibe: '', eventTheme: '',
+    dateTime: '', location: '', groupSize: '',
+    logistics: '', tone: 'Warm & cozy',
   })
   const [selectedOutputs, setSelectedOutputs] = useState(['luma', 'instagram'])
   const [outputs, setOutputs] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [copied, setCopied] = useState(null)
+  const [aiModel, setAiModel] = useState('claude')
 
   const set = (field) => (e) => setForm(prev => ({ ...prev, [field]: e.target.value }))
 
@@ -76,33 +283,57 @@ export default function App() {
     )
   }
 
+  // ── generate (unchanged logic) ───────────────────────────────────────────
   const generate = async () => {
     setLoading(true)
     setError(null)
     setOutputs(null)
-    try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': import.meta.env.VITE_ANTHROPIC_API_KEY,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true',
-        },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-6',
-          max_tokens: 2048,
-          messages: [{ role: 'user', content: buildPrompt(form, selectedOutputs) }],
-        }),
-      })
 
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}))
-        throw new Error(err?.error?.message || `API error ${res.status}`)
+    try {
+      const prompt = buildPrompt(form, selectedOutputs)
+      let text
+
+      if (aiModel === 'claude') {
+        const res = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': import.meta.env.VITE_ANTHROPIC_API_KEY,
+            'anthropic-version': '2023-06-01',
+            'anthropic-dangerous-direct-browser-access': 'true',
+          },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-6',
+            max_tokens: 2048,
+            messages: [{ role: 'user', content: prompt }],
+          }),
+        })
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}))
+          throw new Error(err?.error?.message || `API error ${res.status}`)
+        }
+        const data = await res.json()
+        text = data.content[0].text
+      } else {
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${import.meta.env.VITE_GEMINI_API_KEY}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+              generationConfig: { responseMimeType: 'application/json' },
+            }),
+          }
+        )
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}))
+          throw new Error(err?.error?.message || `API error ${res.status}`)
+        }
+        const data = await res.json()
+        text = data.candidates[0].content.parts[0].text
       }
 
-      const data = await res.json()
-      const text = data.content[0].text
       const clean = text.replace(/^```(?:json)?\n?/m, '').replace(/\n?```$/m, '').trim()
       setOutputs(JSON.parse(clean))
     } catch (err) {
@@ -121,237 +352,366 @@ export default function App() {
 
   const canGenerate = form.clubName.trim() && form.eventTheme.trim() && selectedOutputs.length > 0 && !loading
 
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-[#FAF8F4] text-[#0F1C2E] font-sans">
+    <div style={{ minHeight: '100vh', backgroundColor: C.bg, color: C.textPrimary, fontFamily: FONT_INTER }}>
+      <style>{GLOBAL_CSS}</style>
 
-      {/* Header */}
-      <header className="bg-white border-b border-[#E8E2D9] sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center gap-3">
-          <span className="text-2xl">🌿</span>
-          <span className="text-lg font-semibold tracking-tight">Gather</span>
-          <span className="hidden sm:block text-sm text-[#7A8A9A] ml-1">— Plan less. Gather more.</span>
+      {/* ── Nav ──────────────────────────────────────────────────────────── */}
+      <nav style={{
+        position: 'sticky', top: 0, zIndex: 50,
+        backgroundColor: 'rgba(14,12,18,0.8)',
+        backdropFilter: 'blur(16px)',
+        borderBottom: `1px solid ${C.border}`,
+        padding: '0 32px',
+        height: 56,
+        display: 'flex', alignItems: 'center',
+      }}>
+        <span style={{ fontFamily: FONT_JAKARTA, fontSize: 18, fontWeight: 800, color: C.textPrimary }}>
+          Gather
+        </span>
+      </nav>
+
+      {/* ── Hero ─────────────────────────────────────────────────────────── */}
+      <section style={{ position: 'relative', overflow: 'hidden', padding: '100px 24px 96px' }}>
+        {/* Background photo */}
+        <img
+          src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1920&q=80"
+          alt=""
+          aria-hidden="true"
+          style={{
+            position: 'absolute', inset: 0, width: '100%', height: '100%',
+            objectFit: 'cover', opacity: 0.12,
+          }}
+        />
+        {/* Radial violet glow */}
+        <div style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          background: 'radial-gradient(ellipse 60% 60% at 50% 50%, rgba(167,139,250,0.22) 0%, transparent 70%)',
+        }} />
+        {/* Content */}
+        <div style={{ position: 'relative', maxWidth: 760, margin: '0 auto', textAlign: 'center' }}>
+          <p style={{
+            fontFamily: FONT_INTER, fontSize: 11, fontWeight: 600,
+            letterSpacing: '0.1em', textTransform: 'uppercase',
+            color: C.primary, marginBottom: 20,
+          }}>
+            AI-powered event copy
+          </p>
+          <h1 style={{
+            fontFamily: FONT_JAKARTA, fontWeight: 800,
+            fontSize: 'clamp(36px, 7vw, 64px)',
+            lineHeight: 1.05, letterSpacing: '-0.03em',
+            color: C.textPrimary, marginBottom: 20,
+          }}>
+            Event copy, in seconds.
+          </h1>
+          <p style={{
+            fontFamily: FONT_INTER, fontSize: 18, fontWeight: 400,
+            lineHeight: 1.6, color: C.textMuted,
+            maxWidth: 520, margin: '0 auto 36px',
+          }}>
+            Stop staring at a blank cursor. Gather AI generates curated invites,
+            descriptions, and agendas that match your event's unique vibe.
+          </p>
+          <button
+            onClick={() => document.getElementById('form-section').scrollIntoView({ behavior: 'smooth' })}
+            style={{
+              background: C.gradient,
+              border: 'none', borderRadius: 10,
+              padding: '14px 32px',
+              fontFamily: FONT_JAKARTA, fontSize: 15, fontWeight: 700,
+              color: '#fff', cursor: 'pointer',
+              transition: 'transform 0.15s, box-shadow 0.15s',
+              boxShadow: '0 4px 24px rgba(167,139,250,0.35)',
+            }}
+            onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.02)'}
+            onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+          >
+            Generate my event copy
+          </button>
         </div>
-      </header>
+      </section>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-
-        {/* ── Left: Form ── */}
-        <div className="space-y-5">
-
-          {/* Club Info */}
-          <section className="bg-white rounded-2xl border border-[#E8E2D9] shadow-sm p-6">
-            <h2 className="text-xs font-semibold uppercase tracking-widest text-[#7A8A9A] mb-4">Your Club</h2>
-            <div className="space-y-4">
-              <Field label="Club name" required>
-                <input
-                  type="text"
-                  value={form.clubName}
-                  onChange={set('clubName')}
-                  placeholder="e.g. Seoul Film Collective"
-                  className={INPUT}
-                />
-              </Field>
-              <Field label="Club type / vibe">
-                <input
-                  type="text"
-                  value={form.clubVibe}
-                  onChange={set('clubVibe')}
-                  placeholder="e.g. Korean film club, morning run group"
-                  className={INPUT}
-                />
-              </Field>
-            </div>
-          </section>
-
-          {/* Event Details */}
-          <section className="bg-white rounded-2xl border border-[#E8E2D9] shadow-sm p-6">
-            <h2 className="text-xs font-semibold uppercase tracking-widest text-[#7A8A9A] mb-4">Event Details</h2>
-            <div className="space-y-4">
-              <Field label="Event theme or focus" required>
-                <input
-                  type="text"
-                  value={form.eventTheme}
-                  onChange={set('eventTheme')}
-                  placeholder="e.g. Bong Joon-ho retrospective night"
-                  className={INPUT}
-                />
-              </Field>
-              <div className="grid grid-cols-2 gap-4">
-                <Field label="Date & time" optional>
-                  <input
-                    type="text"
-                    value={form.dateTime}
-                    onChange={set('dateTime')}
-                    placeholder="e.g. Sat July 12, 7pm"
-                    className={INPUT}
-                  />
-                </Field>
-                <Field label="Location" optional>
-                  <input
-                    type="text"
-                    value={form.location}
-                    onChange={set('location')}
-                    placeholder="e.g. The Alamo Drafthouse"
-                    className={INPUT}
-                  />
-                </Field>
+      {/* ── How it works ─────────────────────────────────────────────────── */}
+      <section style={{ padding: '72px 24px', borderTop: `1px solid ${C.border}` }}>
+        <div style={{ maxWidth: 900, margin: '0 auto' }}>
+          <p style={{
+            fontFamily: FONT_INTER, fontSize: 12, fontWeight: 600,
+            letterSpacing: '0.08em', textTransform: 'uppercase',
+            color: C.textMuted, textAlign: 'center', marginBottom: 48,
+          }}>
+            The perfect invite in 3 steps
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 32 }}>
+            {[
+              { icon: '✏️', title: 'Input Details', desc: 'Tell us what you\'re hosting, when, and where. Simple as that.' },
+              { icon: '🎨', title: 'Select Vibe', desc: 'Choose from Warm & Cozy to Fun & Hype to set the perfect tone.' },
+              { icon: '✨', title: 'Export Copy', desc: 'Instant templates for Luma, Partiful, Instagram, and more.' },
+            ].map((step, i) => (
+              <div key={i} style={{ textAlign: 'center' }}>
+                <div style={{
+                  width: 56, height: 56, borderRadius: '50%',
+                  backgroundColor: C.elevated,
+                  border: `1px solid ${C.border}`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  margin: '0 auto 16px', fontSize: 22,
+                }}>
+                  {step.icon}
+                </div>
+                <h4 style={{ fontFamily: FONT_JAKARTA, fontSize: 16, fontWeight: 700, color: C.textPrimary, marginBottom: 8 }}>
+                  {step.title}
+                </h4>
+                <p style={{ fontFamily: FONT_INTER, fontSize: 14, lineHeight: 1.6, color: C.textMuted }}>
+                  {step.desc}
+                </p>
               </div>
-              <Field label="Group size">
-                <input
-                  type="text"
-                  value={form.groupSize}
-                  onChange={set('groupSize')}
-                  placeholder="e.g. 20 people, small group of 8"
-                  className={INPUT}
-                />
-              </Field>
-              <Field label="Logistics" optional>
-                <textarea
-                  value={form.logistics}
-                  onChange={set('logistics')}
-                  placeholder="e.g. $10 suggested donation, bring a snack, RSVP by Friday"
-                  rows={3}
-                  className={INPUT + ' resize-none'}
-                />
-              </Field>
-            </div>
-          </section>
+            ))}
+          </div>
+        </div>
+      </section>
 
-          {/* Tone */}
-          <section className="bg-white rounded-2xl border border-[#E8E2D9] shadow-sm p-6">
-            <h2 className="text-xs font-semibold uppercase tracking-widest text-[#7A8A9A] mb-4">Tone</h2>
-            <div className="flex gap-2">
-              {TONES.map(t => (
-                <button
-                  key={t.id}
-                  onClick={() => setForm(prev => ({ ...prev, tone: t.label }))}
-                  className={`flex-1 py-2.5 px-2 rounded-xl text-sm font-medium border transition-all ${
-                    form.tone === t.label
-                      ? 'bg-[#2D6A4F] text-white border-[#2D6A4F] shadow-sm'
-                      : 'bg-[#FAF8F4] text-[#0F1C2E] border-[#E8E2D9] hover:border-[#2D6A4F]/50 hover:bg-[#F0F7F3]'
-                  }`}
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
-          </section>
+      {/* ── Form ─────────────────────────────────────────────────────────── */}
+      <section id="form-section" style={{ padding: '72px 24px 96px', borderTop: `1px solid ${C.border}` }}>
+        <div style={{ maxWidth: 800, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-          {/* Outputs + Generate */}
-          <section className="bg-white rounded-2xl border border-[#E8E2D9] shadow-sm p-6">
-            <h2 className="text-xs font-semibold uppercase tracking-widest text-[#7A8A9A] mb-4">Generate</h2>
-            <div className="grid grid-cols-2 gap-2 mb-5">
-              {OUTPUT_OPTIONS.map(o => (
-                <label
-                  key={o.id}
-                  className={`flex items-center gap-2.5 p-3 rounded-xl border cursor-pointer transition-all select-none ${
-                    selectedOutputs.includes(o.id)
-                      ? 'bg-[#EFF7F3] border-[#2D6A4F]/40 text-[#1A4434]'
-                      : 'border-[#E8E2D9] hover:border-[#2D6A4F]/30 hover:bg-[#FAF8F4]'
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedOutputs.includes(o.id)}
-                    onChange={() => toggleOutput(o.id)}
-                    className="accent-[#2D6A4F] w-4 h-4 shrink-0"
-                  />
-                  <span className="text-sm font-medium">{o.label}</span>
-                </label>
-              ))}
+          {/* 1 — Your Club */}
+          <SectionCard number="1" title="Your Club">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <div>
+                <Label>Club Name (Required)</Label>
+                <input value={form.clubName} onChange={set('clubName')} placeholder="e.g. Midnight Run Club" />
+              </div>
+              <div>
+                <Label>Club type / vibe</Label>
+                <input value={form.clubVibe} onChange={set('clubVibe')} placeholder="e.g. Tropical House Night" />
+              </div>
+            </div>
+          </SectionCard>
+
+          {/* 2 — Event Details */}
+          <SectionCard number="2" title="Event Details">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div>
+                <Label>Event theme or focus (Required)</Label>
+                <input value={form.eventTheme} onChange={set('eventTheme')} placeholder="e.g. End-of-episode" />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <div>
+                  <Label>Date & Time</Label>
+                  <input value={form.dateTime} onChange={set('dateTime')} placeholder="Saturday, 3:00 PM" />
+                </div>
+                <div>
+                  <Label>Location</Label>
+                  <input value={form.location} onChange={set('location')} placeholder="Enter address or venue name" />
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <div>
+                  <Label>Group Size</Label>
+                  <input value={form.groupSize} onChange={set('groupSize')} placeholder="20 people" />
+                </div>
+                <div>
+                  <Label>Logistics (optional)</Label>
+                  <input value={form.logistics} onChange={set('logistics')} placeholder="e.g. RSVP, cost, what to bring" />
+                </div>
+              </div>
+            </div>
+          </SectionCard>
+
+          {/* 3 — Pick a Tone */}
+          <SectionCard number="3" title="Pick a Tone">
+            <div style={{ display: 'flex', gap: 10 }}>
+              {TONES.map(t => {
+                const active = form.tone === t.label
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => setForm(prev => ({ ...prev, tone: t.label }))}
+                    style={{
+                      flex: 1, padding: '10px 16px', borderRadius: 10,
+                      fontFamily: FONT_JAKARTA, fontSize: 13, fontWeight: 600,
+                      cursor: 'pointer', transition: 'all 0.15s',
+                      background: active ? C.gradient : 'transparent',
+                      border: active ? 'none' : `1.5px solid ${C.border}`,
+                      color: active ? '#fff' : C.textMuted,
+                    }}
+                  >
+                    {t.label}
+                  </button>
+                )
+              })}
+            </div>
+          </SectionCard>
+
+          {/* 4 — Platforms */}
+          <SectionCard number="4" title="Platforms">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+              {OUTPUT_OPTIONS.map(o => {
+                const active = selectedOutputs.includes(o.id)
+                const color = OUTPUT_COLORS[o.id]
+                return (
+                  <button
+                    key={o.id}
+                    onClick={() => toggleOutput(o.id)}
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                      padding: '10px 12px', borderRadius: 10,
+                      fontFamily: FONT_JAKARTA, fontSize: 13, fontWeight: 600,
+                      cursor: 'pointer', transition: 'all 0.15s',
+                      backgroundColor: active ? `${color}20` : 'transparent',
+                      border: active ? `1.5px solid ${color}` : `1.5px solid ${C.border}`,
+                      color: active ? color : C.textMuted,
+                    }}
+                  >
+                    <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: color, flexShrink: 0 }} />
+                    {o.label}
+                  </button>
+                )
+              })}
+            </div>
+          </SectionCard>
+
+          {/* 5 — AI Model + Generate */}
+          <SectionCard number="5" title="AI Model">
+            <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
+              {['claude', 'gemini'].map(m => {
+                const active = aiModel === m
+                return (
+                  <button
+                    key={m}
+                    onClick={() => setAiModel(m)}
+                    style={{
+                      padding: '8px 24px', borderRadius: 10,
+                      fontFamily: FONT_JAKARTA, fontSize: 13, fontWeight: 600,
+                      cursor: 'pointer', transition: 'all 0.15s',
+                      background: active ? C.gradient : 'transparent',
+                      border: active ? 'none' : `1.5px solid ${C.border}`,
+                      color: active ? '#fff' : C.textMuted,
+                    }}
+                  >
+                    {m.charAt(0).toUpperCase() + m.slice(1)}
+                  </button>
+                )
+              })}
             </div>
 
             <button
               onClick={generate}
               disabled={!canGenerate}
-              className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all ${
-                canGenerate
-                  ? 'bg-[#2D6A4F] text-white hover:bg-[#235540] shadow-sm active:scale-[0.98]'
-                  : 'bg-[#E8E2D9] text-[#A8A09A] cursor-not-allowed'
-              }`}
+              style={{
+                width: '100%', padding: '15px 0', borderRadius: 10,
+                fontFamily: FONT_JAKARTA, fontSize: 15, fontWeight: 700,
+                border: 'none', letterSpacing: '0.01em',
+                cursor: canGenerate ? 'pointer' : 'not-allowed',
+                transition: 'transform 0.15s, box-shadow 0.15s',
+                background: canGenerate ? C.gradient : C.elevated,
+                color: canGenerate ? '#fff' : C.textMuted,
+                boxShadow: canGenerate ? '0 4px 24px rgba(167,139,250,0.3)' : 'none',
+              }}
+              onMouseEnter={e => canGenerate && (e.currentTarget.style.transform = 'scale(1.01)')}
+              onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
             >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <span className="animate-spin inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full" />
-                  Generating…
-                </span>
-              ) : 'Generate my event ✦'}
+              {loading
+                ? <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                    <span style={{ width: 15, height: 15, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.75s linear infinite' }} />
+                    Generating...
+                  </span>
+                : 'Generate my event copy →'
+              }
             </button>
 
             {!form.clubName.trim() && (
-              <p className="mt-2 text-xs text-center text-[#A8A09A]">Fill in club name and event theme to generate</p>
+              <p style={{ marginTop: 10, textAlign: 'center', fontSize: 13, color: C.textMuted }}>
+                Fill in club name and event theme to get started
+              </p>
             )}
-          </section>
+          </SectionCard>
         </div>
+      </section>
 
-        {/* ── Right: Outputs ── */}
-        <div className="space-y-4 lg:sticky lg:top-24">
+      {/* ── Results ──────────────────────────────────────────────────────── */}
+      {(loading || outputs || error) && (
+        <section style={{ padding: '0 24px 96px', borderTop: `1px solid ${C.border}` }}>
+          <div style={{ maxWidth: 900, margin: '0 auto', paddingTop: 64 }}>
 
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-2xl p-4 text-sm text-red-700">
-              <strong>Error:</strong> {error}
-            </div>
-          )}
-
-          {!outputs && !loading && !error && (
-            <div className="bg-white rounded-2xl border border-dashed border-[#D8D2C9] p-14 text-center">
-              <div className="text-4xl mb-3">🌿</div>
-              <p className="font-medium text-[#0F1C2E] mb-1">Your content will appear here</p>
-              <p className="text-sm text-[#7A8A9A]">Fill in your details and hit Generate</p>
-            </div>
-          )}
-
-          {loading && (
-            <div className="bg-white rounded-2xl border border-[#E8E2D9] p-14 text-center">
-              <div className="text-4xl mb-3">
-                <span className="inline-block animate-pulse">🌿</span>
+            {/* Results header */}
+            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 8 }}>
+              <div>
+                <h2 style={{ fontFamily: FONT_JAKARTA, fontSize: 32, fontWeight: 700, color: C.textPrimary, lineHeight: 1.2 }}>
+                  Generated Results
+                </h2>
+                <p style={{ fontFamily: FONT_INTER, fontSize: 14, color: C.textMuted, marginTop: 6 }}>
+                  Review and copy the content for your preferred platform.
+                </p>
               </div>
-              <p className="font-medium text-[#0F1C2E] mb-1">Writing your event copy…</p>
-              <p className="text-sm text-[#7A8A9A]">Takes just a few seconds</p>
+              {outputs && (
+                <button
+                  onClick={generate}
+                  style={{
+                    padding: '9px 20px', borderRadius: 10,
+                    fontFamily: FONT_JAKARTA, fontSize: 13, fontWeight: 600,
+                    border: `1px solid ${C.border}`,
+                    backgroundColor: 'transparent', color: C.textMuted,
+                    cursor: 'pointer', transition: 'all 0.15s', whiteSpace: 'nowrap',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.backgroundColor = C.surface; e.currentTarget.style.color = C.textPrimary }}
+                  onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = C.textMuted }}
+                >
+                  ↻ Regenerate All
+                </button>
+              )}
             </div>
-          )}
 
-          {outputs && selectedOutputs.map(key => (
-            outputs[key] ? (
-              <div key={key} className="bg-white rounded-2xl border border-[#E8E2D9] shadow-sm overflow-hidden">
-                <div className="flex items-center justify-between px-5 py-3 border-b border-[#E8E2D9]">
-                  <span className="text-sm font-semibold text-[#0F1C2E]">{OUTPUT_LABELS[key]}</span>
-                  <button
-                    onClick={() => copyText(key, outputs[key])}
-                    className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-all ${
-                      copied === key
-                        ? 'bg-[#2D6A4F] text-white'
-                        : 'bg-[#EFF7F3] text-[#2D6A4F] hover:bg-[#D8EFE4]'
-                    }`}
-                  >
-                    {copied === key ? '✓ Copied' : 'Copy'}
-                  </button>
-                </div>
-                <div className="p-5">
-                  <p className="text-sm text-[#1A2A3A] whitespace-pre-wrap leading-relaxed">{outputs[key]}</p>
-                </div>
+            {/* Error */}
+            {error && (
+              <div style={{
+                marginTop: 24, padding: 16, borderRadius: 12,
+                backgroundColor: '#93000a22', border: '1px solid #93000a',
+                color: '#ffdad6', fontSize: 14, fontFamily: FONT_INTER,
+              }}>
+                <strong>Error:</strong> {error}
               </div>
-            ) : null
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
+            )}
 
-// ── Shared components ──
+            {/* Shimmer skeletons while loading */}
+            {loading && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 20, marginTop: 32 }}>
+                {selectedOutputs.map(id => <ShimmerCard key={id} />)}
+              </div>
+            )}
 
-const INPUT = 'w-full rounded-lg border border-[#E8E2D9] bg-[#FAF8F4] px-3.5 py-2.5 text-sm placeholder:text-[#B8B0A8] focus:outline-none focus:ring-2 focus:ring-[#2D6A4F]/25 focus:border-[#2D6A4F] transition'
+            {/* Output cards */}
+            {outputs && !loading && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 20, marginTop: 32 }}>
+                {selectedOutputs.map((key, i) =>
+                  outputs[key] ? (
+                    <div key={key} style={{ animationDelay: `${i * 0.08}s` }}>
+                      <OutputCard
+                        id={key}
+                        content={outputs[key]}
+                        isCopied={copied === key}
+                        onCopy={() => copyText(key, outputs[key])}
+                      />
+                    </div>
+                  ) : null
+                )}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
-function Field({ label, children, required, optional }) {
-  return (
-    <div>
-      <label className="flex items-center gap-1.5 text-sm font-medium mb-1.5">
-        {label}
-        {required && <span className="text-[#2D6A4F] text-xs">*</span>}
-        {optional && <span className="text-[#A8A09A] font-normal text-xs">(optional)</span>}
-      </label>
-      {children}
+      {/* ── Footer ───────────────────────────────────────────────────────── */}
+      <footer style={{
+        borderTop: `1px solid ${C.border}`,
+        padding: '24px 32px',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <p style={{ fontFamily: FONT_INTER, fontSize: 13, color: C.textMuted }}>
+          Gather — Plan less. Gather more.
+        </p>
+      </footer>
     </div>
   )
 }
