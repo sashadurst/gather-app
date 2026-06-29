@@ -675,14 +675,14 @@ export default function App() {
 
             {/* Shimmer skeletons while loading */}
             {loading && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginTop: 32 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 20, marginTop: 32, alignItems: 'start' }}>
                 {OUTPUT_OPTIONS.filter(o => selectedOutputs.includes(o.id)).map(o => <ShimmerCard key={o.id} />)}
               </div>
             )}
 
             {/* Output cards */}
             {outputs && !loading && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginTop: 32 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 20, marginTop: 32, alignItems: 'start' }}>
                 {OUTPUT_OPTIONS.map(({ id: key }, i) =>
                   selectedOutputs.includes(key) && outputs[key] ? (
                     <div key={key} style={{ animationDelay: `${i * 0.08}s` }}>
