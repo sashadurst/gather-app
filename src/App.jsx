@@ -479,12 +479,12 @@ export default function App() {
           <SectionCard number="1" title="Your Club">
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               <div>
-                <Label>Club Name (Required)</Label>
+                <Label>Club Name <span style={{ color: '#e46cff' }}>*</span></Label>
                 <input value={form.clubName} onChange={set('clubName')} placeholder="e.g. Midnight Run Club" />
               </div>
               <div>
                 <Label>Club type / vibe</Label>
-                <input value={form.clubVibe} onChange={set('clubVibe')} placeholder="e.g. Tropical House Night" />
+                <textarea value={form.clubVibe} onChange={set('clubVibe')} placeholder="e.g. Tropical House Night" rows={3} />
               </div>
             </div>
           </SectionCard>
@@ -493,7 +493,7 @@ export default function App() {
           <SectionCard number="2" title="Event Details">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div>
-                <Label>Event theme or focus (Required)</Label>
+                <Label>Event theme or focus <span style={{ color: '#e46cff' }}>*</span></Label>
                 <input value={form.eventTheme} onChange={set('eventTheme')} placeholder="e.g. End-of-episode" />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
@@ -512,8 +512,8 @@ export default function App() {
                   <input value={form.groupSize} onChange={set('groupSize')} placeholder="20 people" />
                 </div>
                 <div>
-                  <Label>Logistics (optional)</Label>
-                  <input value={form.logistics} onChange={set('logistics')} placeholder="e.g. RSVP, cost, what to bring" />
+                  <Label>Logistics</Label>
+                  <textarea value={form.logistics} onChange={set('logistics')} placeholder="e.g. RSVP, cost, what to bring" rows={5} />
                 </div>
               </div>
             </div>
@@ -677,15 +677,15 @@ export default function App() {
             {/* Shimmer skeletons while loading */}
             {loading && (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 20, marginTop: 32 }}>
-                {selectedOutputs.map(id => <ShimmerCard key={id} />)}
+                {OUTPUT_OPTIONS.filter(o => selectedOutputs.includes(o.id)).map(o => <ShimmerCard key={o.id} />)}
               </div>
             )}
 
             {/* Output cards */}
             {outputs && !loading && (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 20, marginTop: 32 }}>
-                {selectedOutputs.map((key, i) =>
-                  outputs[key] ? (
+                {OUTPUT_OPTIONS.map(({ id: key }, i) =>
+                  selectedOutputs.includes(key) && outputs[key] ? (
                     <div key={key} style={{ animationDelay: `${i * 0.08}s` }}>
                       <OutputCard
                         id={key}
