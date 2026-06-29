@@ -318,7 +318,7 @@ export default function App() {
         const geminiModels = ['gemini-1.5-flash-latest', 'gemini-pro']
         const geminiBody = JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { responseMimeType: 'application/json' },
+          generationConfig: {},
         })
         let geminiRes, geminiErr
         for (const model of geminiModels) {
