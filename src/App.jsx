@@ -315,22 +315,19 @@ export default function App() {
         const data = await res.json()
         text = data.content[0].text
       } else {
-        const geminiModels = ['gemini-1.5-flash-latest', 'gemini-pro']
-        const geminiBody = JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {},
-        })
-        let geminiRes, geminiErr
-        for (const model of geminiModels) {
-          geminiRes = await fetch(
-            `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${import.meta.env.VITE_GEMINI_API_KEY}`,
-            { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: geminiBody }
-          )
-          if (geminiRes.ok) break
-          geminiErr = await geminiRes.json().catch(() => ({}))
-        }
+        const geminiRes = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${import.meta.env.VITE_GEMINI_API_KEY}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+            }),
+          }
+        )
         if (!geminiRes.ok) {
-          throw new Error(geminiErr?.error?.message || `API error ${geminiRes.status}`)
+          const err = await geminiRes.json().catch(() => ({}))
+          throw new Error(err?.error?.message || `API error ${geminiRes.status}`)
         }
         const data = await geminiRes.json()
         text = data.candidates[0].content.parts[0].text
