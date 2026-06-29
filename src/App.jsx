@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-// ── Constants (unchanged) ──────────────────────────────────────────────────
+// ── Constants ─────────────────────────────────────────────────────────────
 
 const TONES = [
   { id: 'warm', label: 'Warm & cozy' },
