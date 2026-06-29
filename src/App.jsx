@@ -248,7 +248,7 @@ function OutputCard({ id, content, isCopied, onCopy }) {
       </div>
 
       {/* Content */}
-      <div style={{ padding: '20px', flex: 1 }}>
+      <div style={{ padding: '20px' }}>
         <p style={{
           fontFamily: FONT_MONO, fontSize: 14, lineHeight: 1.75,
           color: C.textPrimary, whiteSpace: 'pre-wrap',
@@ -682,7 +682,7 @@ export default function App() {
 
             {/* Output cards */}
             {outputs && !loading && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 20, marginTop: 32 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 20, marginTop: 32, alignItems: 'start' }}>
                 {OUTPUT_OPTIONS.map(({ id: key }, i) =>
                   selectedOutputs.includes(key) && outputs[key] ? (
                     <div key={key} style={{ animationDelay: `${i * 0.08}s` }}>
